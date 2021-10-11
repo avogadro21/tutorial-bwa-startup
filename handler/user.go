@@ -37,8 +37,36 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
-	formatter := user.GetDTORegisterUser(newUser, "token")
+	formatter := user.GetDTORegisterUser(newUser)
 	response := global.APIResponse("success", http.StatusCreated, "Account has been created", formatter)
 
 	c.JSON(http.StatusCreated, response)
+}
+
+func (h *userHandler) Login(c *gin.Context) {
+	var input user.LoginInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		message := "Login Error"
+		errors := global.ValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		errorResponse := global.APIResponse("error", http.StatusBadRequest, message, errorMessage)
+		c.JSON(http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	newUser, err := h.userService.Login(input)
+	if err != nil {
+		message := "Login Error"
+		errorMessage := gin.H{"errors": err.Error()}
+		errorResponse := global.APIResponse("error", http.StatusBadRequest, message, errorMessage)
+		c.JSON(http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	formatter := user.GetDTOLogin(newUser, "token")
+	response := global.APIResponse("success", http.StatusOK, "Login Success", formatter)
+	c.JSON(http.StatusOK, response)
 }
