@@ -26,6 +26,7 @@ func main() {
 
 	api.POST("/user", userHandler.RegisterUser)
 	api.POST("/login", userHandler.Login)
+	api.POST("/user/check-email", userHandler.IsEmailAvailable)
 	router.Run()
 
 	//input := user.RegisterUserInput{
